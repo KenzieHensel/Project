@@ -1,0 +1,8 @@
+Board_Game_ID is the HTML from the webscrape
+Board_Game_IDs is the result of running the code and extracting only the Board Game IDs
+Board_Game_Links are all the links to each page for games with over 1000 reviews
+Board_Game_ID.ipynb is the python file to extract the Board Game IDs
+game_details is the result of running the api
+
+
+I saved the txt file with all the ids in another section and called it game_ids in my code
