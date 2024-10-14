@@ -1,0 +1,157 @@
+---
+title: "ARM"
+author: "Kenzie Hensel"
+date: "2024-10-12"
+output: html_document
+---
+
+```{r}
+install.packages("Rcpp")
+```
+```{r}
+install.packages("arules")
+install.packages("TSP")
+install.packages("data.table")
+install.packages("arulesViz", dependencies = TRUE)
+install.packages("sp")
+install.packages("datasets.load")
+install.packages("ggplot2")
+
+install.packages("dplyr", dependencies = TRUE)
+install.packages("purrr", dependencies = TRUE)
+
+```
+```{r}
+install.packages("devtools", dependencies = TRUE)
+install.packages("tidyr")
+library(viridis)
+library(arules)
+library(TSP)
+library(data.table)
+library(ggplot2)
+library(Matrix)
+library(tcltk)
+library(dplyr)
+#library(devtools)
+library(purrr)
+library(tidyr)
+```
+
+```{r}
+#Loading my dataset
+game_data <- read.csv("C:/Users/kenzi/OneDrive - UCB-O365/MSDS/MACHINE LEARNING/Project/Module_2/game_details_copy.csv", stringsAsFactors = FALSE)
+
+#Cleaning up the categories column by removing {, }, [, ], '
+game_data$categories <- gsub("[\\{\\}\\[\\]]", "", game_data$categories)
+game_data$categories <- gsub("'", "", game_data$categories)
+game_data$categories <- gsub("\\[|\\]", "", game_data$categories)
+
+
+
+#Viewing the first few rows of the cleaned dataset
+head(game_data$categories)
+```
+
+```{r}
+#Separateing the categories column into basket data
+#Splitting the categories by comma and creating a list of transactions
+basket_data <- strsplit(game_data$categories, ", ")
+
+#Creating a transaction object
+basket_transactions <- as(basket_data, "transactions")
+
+#Inspecting the basket data
+inspect(head(basket_transactions, 5))
+```
+
+```{r}
+#Generating association rules with a minimum support and confidence
+rules <- arules::apriori(basket_transactions,
+                 parameter = list(supp = 0.01, conf = 0.6))
+
+#Inspecting the generated rules
+inspect(rules)
+```
+
+```{r}
+sorted_rules_conf <- sort(rules, by = "confidence", decreasing = TRUE)
+inspect(head(sorted_rules_conf, 15))
+```
+
+```{r}
+#Sorting rules by lift and inspecting the top 15 rules
+sorted_rules_lift <- sort(rules, by = "lift", decreasing = TRUE)
+inspect(head(sorted_rules_lift, 15))
+```
+
+```{r}
+sorted_rules_supp <- sort(rules, by = "support", decreasing = TRUE)
+inspect(head(sorted_rules_supp, 15))
+```
+
+```{r}
+#Generating association rules with a minimum support and higher confidence
+rules_high_conf <- arules::apriori(basket_transactions,
+                 parameter = list(supp = 0.01, conf = 0.8))
+
+#Inspecting the generated rules
+inspect(rules_high_conf)
+```
+```{r}
+#Sortting rules by lift and inspect the top 15 rules
+sorted_rules_high_conf <- sort(rules_high_conf, by = "lift", decreasing = TRUE)
+inspect(head(sorted_rules_high_conf, 15))
+```
+```{r}
+#Generating association rules with a higher support and minimum confidence
+rules_high_supp <- apriori(basket_transactions,
+                 parameter = list(supp = 0.05, conf = 0.6))
+
+#Inspecting the generated rules
+inspect(rules_high_supp)
+```
+
+```{r}
+# Filter rules containing 'Fantasy'
+fantasy_rules <- subset(rules, rhs %pin% "Fantasy")
+inspect(fantasy_rules)
+```
+
+```{r}
+# Filter rules containing 'Adventure'
+adventure_rules <- subset(rules, rhs %pin% "Adventure")
+inspect(adventure_rules)
+```
+
+```{r}
+# Filter rules containing 'Fighting'
+adventure_rules <- subset(rules, rhs %pin% "Fighting")
+inspect(adventure_rules)
+```
+
+```{r}
+library(devtools)
+install_github("mhahsler/arulesViz")
+```
+
+
+
+```{r}
+library(arulesViz)
+
+# Assuming Fantasy_Vis is your sorted rules
+Fantasy_Vis <- head(sort(fantasy_rules, by = 'lift'), 15)
+
+# Basic plot with pink color
+plot(Fantasy_Vis, col = "pink")
+
+# Graph method with HTML widget
+plot(Fantasy_Vis, method = 'graph', engine = 'htmlwidget', control = list(nodeCol = "pink"))
+
+```
+
+
+
+
+
+
